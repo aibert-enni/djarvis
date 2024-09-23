@@ -20,6 +20,6 @@ urlpatterns = [
 
     # кастомные доп ссылки
     path('admin/', views.login_user, name='login'),
-    path('ruslan_admin/', admin.site.urls),
+    path('dj-admin/', admin.site.urls),
     
 ]

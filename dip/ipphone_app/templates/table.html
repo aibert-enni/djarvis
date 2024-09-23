@@ -1,0 +1,167 @@
+<!-- Общий заголовок таблицы -->
+
+<table class="table text-center table-striped table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Внутренние номера</th>
+            <th scope="col">Ф.И.О.</th>
+            <th scope="col">Должность</th>
+            <th scope="col">Кабинет</th>
+            <th scope="col">E-mail</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for department in departments %}
+			<!-- Название департамента -->
+            <tr class="table-dark">
+                <td colspan="5" class="text-left"><strong>{{ department.name }}</strong></td>
+            </tr>
+            {% for record in records %}
+                {% if record.department == department %}
+                    <tr>
+                        <td>{{ record.phone }}</td>
+                        <td>{{ record.full_name }}</td>
+                        <td>{{ record.position }}</td>
+                        <td>{{ record.room }}</td>
+                        <td>{{ record.email }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+	const recordsData = JSON.parse('{{ qs_json|escapejs }}');
+    const allDepartments = JSON.parse('{{ departments_json|escapejs }}');
+    const input = document.getElementById('search_here');
+    const tableBody = document.getElementById('table-body');
+    const isAdminInput = document.getElementById('is-admin');
+    const isAdmin = isAdminInput ? isAdminInput.value === 'true' : false;
+
+    input.addEventListener('keyup', (e) => {
+        const searchValue = e.target.value.toLowerCase();
+        
+        // Фильтрация данных: исключаем неактивных сотрудников, если пользователь не админ
+        const filteredArr = recordsData.filter(info => {
+            if (!isAdmin && !info.is_active) {
+                return false;  // Исключаем неактивных сотрудников для не админов
+            }
+            return Object.values(info).some(value =>
+                String(value).toLowerCase().includes(searchValue)
+            );
+        });
+
+        // Очистка таблицы
+        tableBody.innerHTML = "";
+
+        // Группировка сотрудников по департаментам
+        const departmentsMap = {};
+        const departmentWithEmployees = new Set(); // Track departments with employees in filtered data
+        const allDepartmentWithEmployees = new Set(); // Track all departments with employees
+
+        recordsData.forEach(info => {
+            const departmentId = info.department__name;
+
+            // Проверка, что департамент не null и не пустая строка
+            if (departmentId && departmentId.trim() !== "") {
+                allDepartmentWithEmployees.add(departmentId); // Track all departments with employees
+
+                if (!departmentsMap[departmentId]) {
+                    departmentsMap[departmentId] = [];
+                }
+                departmentsMap[departmentId].push(info);
+            }
+        });
+
+        filteredArr.forEach(info => {
+            const departmentId = info.department__name;
+
+            if (departmentId && departmentId.trim() !== "") {
+                departmentWithEmployees.add(departmentId); // Track departments with employees in filtered data
+            }
+        });
+
+        // Поиск департаментов, у которых нет сотрудников, по названию департамента
+        const filteredDepartments = allDepartments.filter(department => {
+            return department.name.toLowerCase().includes(searchValue);
+        });
+
+        // Вывод департаментов и сотрудников
+        allDepartments.forEach(department => {
+            // Если департамент есть в результатах фильтрации по названию
+            if (filteredDepartments.some(dep => dep.name === department.name) || departmentWithEmployees.has(department.name)) {
+                // Департамент есть в фильтрованных данных или совпадает по названию
+                if (departmentsMap[department.name]) {
+                    const departmentRow = `
+                        <tr class="department-row department">
+                            <td colspan="5" class="text-left department"><strong>${department.name}</strong></td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += departmentRow;
+
+                    departmentsMap[department.name].forEach(info => {
+                        if (info.is_active) {  // Только активные сотрудники
+                            const row = `
+                                <tr data-record="${info.id}" data-department="${info.department__name}">
+                                    <td>${info.phone}</td>
+                                    <td>${info.full_name}</td>
+                                    <td>${info.position}</td>
+                                    <td>${info.room}</td>
+                                    <td>${info.email}</td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += row;
+                        }
+                    });
+                } else if (isAdmin && !allDepartmentWithEmployees.has(department.name)) {
+                    // Департамент без сотрудников вообще (только для админа)
+                    const departmentRow = `
+                        <tr class="department-row department">
+                            <td colspan="5" class="text-left department"><strong>${department.name}</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-center">Сотрудников в этом департаменте нет</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += departmentRow;
+                }
+            }
+        });
+
+        // Вывод неактивных сотрудников и сотрудников без департамента только для админа
+        if (isAdmin) {
+            const noDepartmentRow = `
+                <tr class="default-department department-row">
+                    <td colspan="5" class="text-left department"><strong>Неактивные пользователи и пользователи без департамента</strong></td>
+                </tr>
+            `;
+            tableBody.innerHTML += noDepartmentRow;
+
+            filteredArr.forEach(info => {
+                // Проверка на сотрудников без департамента или неактивных сотрудников
+                if (!info.department__name || info.department__name.trim() === "" || !info.is_active) {
+                    const row = `
+                        <tr data-record="${info.id}">
+                            <td>${info.phone}</td>
+                            <td>${info.full_name}</td>
+                            <td>${info.position}</td>
+                            <td>${info.room}</td>
+                            <td>${info.email}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                }
+            });
+        }
+
+        // Если ничего не найдено
+        if (filteredArr.length === 0 && filteredDepartments.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">По запросу ничего не найдено...</td>
+                </tr>
+            `;
+        }
+	});
+</script>

@@ -1,0 +1,21 @@
+.table-custom th {
+    background-color: #005590 !important;
+    color: #FFFFFF;
+}
+
+.department {
+    background-color: #005590 !important;
+    color: #FFFFFF !important;
+}
+
+.ipphone-head {
+    border-bottom: 20px solid #FFFFFF;
+}
+
+.ipphone-head th {
+    color: #FFFFFF !important;
+}
+
+.default-department {
+    border-top: 20px solid #FFFFFF;
+}

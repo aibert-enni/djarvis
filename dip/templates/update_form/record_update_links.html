@@ -1,0 +1,10 @@
+<textarea style="white-space: nowrap; height: 75vh;" class="form-control">
+    {% for link in links %}
+    {{ link.full_name }}: {{ link.link }}
+    {% endfor %}
+</textarea>
+{#<ul class="list-group">#}
+{#    {% for link in links %}#}
+{#        <li class="list-group-item">{{ link.full_name }}: <a href="{{ link.link }}">{{ link.link }}</a></li>#}
+{#    {% endfor %}#}
+{#</ul>#}

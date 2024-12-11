@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'common/base.html' %}
 
 {% block content %}
 
@@ -6,7 +6,7 @@
 
 <h1>Добавить сотрудника</h1>
 <br>
-<form method="POST" action="{% url 'add_record' %}">
+<form method="POST" enctype="multipart/form-data" action="{% url 'add_record' %}" >
     {% csrf_token %}
 
     {{ form.as_p }}

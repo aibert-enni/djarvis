@@ -19,3 +19,16 @@
 .default-department {
     border-top: 20px solid #FFFFFF;
 }
+
+.photo {
+    vertical-align: middle;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.photo-show:hover {
+    border-radius: 0;
+    transform: scale(8);
+}

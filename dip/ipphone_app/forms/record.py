@@ -1,5 +1,5 @@
 from django import forms
-from .models import Record, Department
+from ipphone_app.models import Department, Record
 
 class AddRecordForm(forms.ModelForm):
     is_active = forms.BooleanField(
@@ -42,23 +42,52 @@ class AddRecordForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"placeholder": "Почта", "class": "form-control"}),
         label=""
     )
+    image = forms.ImageField(
+        required=False, # Сделаем необязательным, как указано в модели
+        widget=forms.ClearableFileInput(attrs={"placeholder": "Фото","class": "form-control"}),
+        label="Фото"
+    )
 
     class Meta:
         model = Record
         exclude = ("created_at",)  # Исключим автоматические и технические поля
 
-class AddDepartmentForm(forms.ModelForm):
-    name = forms.CharField(
-        required=True,
-        widget=forms.TextInput(attrs={"placeholder": "Название департамента", "class": "form-control"}),
-        label=""
+class UpdateRecordForm(forms.ModelForm):
+    phone = forms.CharField(
+        required=False,  # Сделаем поле необязательным, как указано в модели
+        widget=forms.TextInput(attrs={"placeholder": "Внутренний номер", "class": "form-control"}),
+        label="Внутренний номер"
     )
-    position = forms.IntegerField(
-        required=True,
-        widget=forms.NumberInput(attrs={"placeholder": "Позиция", "class": "form-control"}),
-        label=""
+    full_name = forms.CharField(
+        required=False,  # Это поле обязательно
+        widget=forms.TextInput(attrs={"placeholder": "Ф.И.О.", "class": "form-control"}),
+        label="Ф.И.О."
     )
+    room = forms.CharField(
+        required=False,  # Сделаем необязательным, как указано в модели
+        widget=forms.TextInput(attrs={"placeholder": "Кабинет", "class": "form-control"}),
+        label="Кабинет"
+    )
+    department = forms.ModelChoiceField(
+        required=False,
+        queryset=Department.objects.all(),
+        widget=forms.Select(attrs={"placeholder": "Департамент","class": "form-control"}),
+        label="Департамент"
+    )
+    email = forms.CharField(
+        required=False,  # Сделаем необязательным, как указано в модели
+        widget=forms.TextInput(attrs={"placeholder": "Почта", "class": "form-control"}),
+        label="Почта"
+    )
+    image = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(
+            attrs={"placeholder": "Ваше фото", "class": "form-control"}
+        ),
+        label="Фото"
+    )
+    position = forms.CharField()
 
     class Meta:
-        model = Department
-        fields = ['name', 'position']  # Определим только нужные поля
+        model = Record
+        exclude = ('created_at', 'position_id', 'position', 'is_active')

@@ -1,0 +1,128 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <main>
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Действие</th>
+                <th scope="col">Кем</th>
+                <th scope="col">Описание</th>
+                <th scope="col">Время</th>
+                <th scope="col">Статус</th>
+            </tr>
+            </thead>
+            <tbody class="s">
+            <tr onclick="getLog('{% url 'log' log.id %}')"
+                class="{% if log.status == 'error' or log.status == 'error_logging' %} table-danger {% else %} table-success {% endif %}">
+                <td>{{ log.slug }}</td>
+                <td>{{ log.by_user }}</td>
+                <td>{{ log.text|safe }}</td>
+                <td>{{ log.created_at }}</td>
+                <td>{{ log.status }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        let prev_values = {% if log.prev_values %} {{ log.prev_values|safe }} {% else %} null {% endif %}
+        let next_values = {% if log.next_values %} {{ log.next_values|safe }} {% else %} null {% endif %}
+        console.log(prev_values, next_values['Ссылки'])
+        function render() {
+            if (prev_values || next_values) {
+                document.getElementsByTagName('main')[0].innerHTML += `
+            <div id="content" class="">
+                <h1 class="text-center mb-3">Запись</h1>
+                <div id="rows" class="d-flex justify-content-center gap-5">
+                </div>
+            </div>
+            `;
+                const content = document.getElementById('rows');
+                let prev_fields = null
+                if (prev_values) {
+                    content.innerHTML += `
+            <div>
+            <h3 class="text-center">До</h3>
+            <table class="table table-bordered table-hover">
+                <thead>
+                <tr class="table-secondary">
+                    <td>Название поля</td>
+                    <td>Значение</td>
+                </tr>
+                </thead>
+                <tbody id="before">
+
+                </tbody>
+            </table>
+            </div>
+            <div class="vr"></div>`;
+                    prev_fields = prev_values[0]['fields'];
+                    const before = document.getElementById(`before`)
+                    for (let field in prev_fields) {
+                        before.innerHTML += `
+                    <tr>
+                    <td>
+                        ${field}
+                    </td>
+                    <td>
+                        ${prev_fields[field]}
+                    </td>
+                    </tr>
+                    `
+                    }
+                }
+                if (next_values) {
+                    content.innerHTML += `
+                    <div>
+                    ${prev_fields ? '<h3 class="text-center">После</h3>' : ''}
+                    <table class="table table-bordered border-2 table-hover">
+                        <thead>
+                        <tr class="table-secondary">
+                            <td>Название поля</td>
+                            <td>Значение</td>
+                        </tr>
+                        </thead>
+                        <tbody id="after">
+
+                        </tbody>
+                    </table>
+                    </div>`;
+                    const next_fields = {% if log.slug in 'create update delete' %} next_values[0]['fields'] {% else %} next_values {% endif %}
+                    const after = document.getElementById('after')
+                    if (prev_fields) {
+                        for (let field in next_fields) {
+                            after.innerHTML += `
+                    <tr>
+                    <td>
+                        ${field}
+                    </td>
+                    <td class="${next_fields[field] !== prev_fields[field] ? 'table-success' : ''}">
+                        ${next_fields[field]}
+                    </td>
+                    </tr>
+                    `
+                        }
+                    } else {
+                        for (let field in next_fields) {
+                            after.innerHTML += `
+                            <tr>
+                            <td>
+                                ${field}
+                            </td>
+                            <td>
+                                ${JSON.stringify(next_fields[field])}
+                            </td>
+                            </tr>
+                            `
+                        }
+                    }
+                }
+            }
+        }
+
+        render()
+    </script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'common/base.html' %}
+
+{% block links %}
+    <style>
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="col-md-6 offset-md-3">
+
+        <h1>Настройки рассылки</h1>
+        <br>
+        <form class="mb-3" method="POST" enctype="multipart/form-data" action="{% url 'record_form_configuration' 1 %}">
+            {% csrf_token %}
+            <div class="form-check form-switch">
+                <input class="form-check-input" name="is_active" {% if form.is_active.value %} checked {% endif %}
+                       type="checkbox" id="is_active-id">
+                <label class="form-check-label fw-semibold" for="is_active-id">Активировать формы</label>
+            </div>
+            <hr>
+            <h5>Позволить сотрудникам изменять:</h5>
+            <div class="form-check">
+                <input class="form-check-input" name="full_name" type="checkbox" {% if form.full_name.value %}
+                       checked {% endif %} id="full_name-id">
+                <label class="form-check-label" for="full_name-id">
+                    Ф.И.О
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="position" type="checkbox" {% if form.position.value %}
+                       checked {% endif %} id="position-id">
+                <label class="form-check-label" for="position-id">
+                    Должность
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="department" type="checkbox" {% if form.department.value %}
+                       checked {% endif %} id="department-id">
+                <label class="form-check-label" for="department-id">
+                    Департамент
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="image" type="checkbox" {% if form.image.value %}
+                       checked {% endif %} id="image-id">
+                <label class="form-check-label" for="image-id">
+                    Фото
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="phone" type="checkbox" {% if form.phone.value %}
+                       checked {% endif %} id="phone-id">
+                <label class="form-check-label" for="phone-id">
+                    Внутренний номер
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="room" type="checkbox" {% if form.room.value %} checked {% endif %}
+                       id="room-id">
+                <label class="form-check-label" for="room-id">
+                    Номер кабинета
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="email" type="checkbox" {% if form.email.value %}
+                       checked {% endif %} id="email-id">
+                <label class="form-check-label" for="email-id">
+                    Почту
+                </label>
+            </div>
+            <hr>
+            <div class="row justify-content-between">
+                <div class="col-auto">
+                    <label for="expire_time_duration-id" class="col-form-label">Количество дней срока действия
+                        ссылки:</label>
+                </div>
+                <div class="col-2">
+                    <input type="number" name="expire_time_duration" value="{{ form.expire_time_duration.value }}"
+                           id="expire_time_duration-id" class="form-control">
+                </div>
+            </div>
+            <div class="row justify-content-between">
+                <div class="col-auto">
+                    <label for="attempts_number-id" class="col-form-label">Количество попыток для ссылки:</label>
+                </div>
+                <div class="col-2">
+                    <input type="number" name="attempts_number" value="{{ form.attempts_number.value }}"
+                           id="attempts_number-id" class="form-control">
+                </div>
+            </div>
+            <br>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Назад</a>
+            <button type="submit" class="btn btn-success">Изменить настройки рассылки</button>
+        </form>
+    </div>
+
+{% endblock %}

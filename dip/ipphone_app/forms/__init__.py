@@ -1,0 +1,3 @@
+from ipphone_app.forms.record import UpdateRecordForm, AddRecordForm
+from ipphone_app.forms.department import AddDepartmentForm
+from ipphone_app.forms.record_form_configuration import RecordFormConfigurationForm

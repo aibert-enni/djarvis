@@ -2,37 +2,37 @@
 
 <table class="table text-center table-striped table-hover">
     <thead>
-        <tr>
-            <th scope="col">Внутренние номера</th>
-            <th scope="col">Ф.И.О.</th>
-            <th scope="col">Должность</th>
-            <th scope="col">Кабинет</th>
-            <th scope="col">E-mail</th>
-        </tr>
+    <tr>
+        <th scope="col">Внутренние номера</th>
+        <th scope="col">Ф.И.О.</th>
+        <th scope="col">Должность</th>
+        <th scope="col">Кабинет</th>
+        <th scope="col">E-mail</th>
+    </tr>
     </thead>
     <tbody>
-        {% for department in departments %}
-			<!-- Название департамента -->
-            <tr class="table-dark">
-                <td colspan="5" class="text-left"><strong>{{ department.name }}</strong></td>
-            </tr>
-            {% for record in records %}
-                {% if record.department == department %}
-                    <tr>
-                        <td>{{ record.phone }}</td>
-                        <td>{{ record.full_name }}</td>
-                        <td>{{ record.position }}</td>
-                        <td>{{ record.room }}</td>
-                        <td>{{ record.email }}</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
+    {% for department in departments %}
+        <!-- Название департамента -->
+        <tr class="table-dark">
+            <td colspan="5" class="text-left"><strong>{{ department.name }}</strong></td>
+        </tr>
+        {% for record in records %}
+            {% if record.department == department %}
+                <tr>
+                    <td>{{ record.phone }}</td>
+                    <td>{{ record.full_name }}</td>
+                    <td>{{ record.position }}</td>
+                    <td>{{ record.room }}</td>
+                    <td>{{ record.email }}</td>
+                </tr>
+            {% endif %}
         {% endfor %}
+    {% endfor %}
     </tbody>
 </table>
 
 <script>
-	const recordsData = JSON.parse('{{ qs_json|escapejs }}');
+    const recordsData = JSON.parse('{{ qs_json|escapejs }}');
     const allDepartments = JSON.parse('{{ departments_json|escapejs }}');
     const input = document.getElementById('search_here');
     const tableBody = document.getElementById('table-body');
@@ -41,7 +41,7 @@
 
     input.addEventListener('keyup', (e) => {
         const searchValue = e.target.value.toLowerCase();
-        
+
         // Фильтрация данных: исключаем неактивных сотрудников, если пользователь не админ
         const filteredArr = recordsData.filter(info => {
             if (!isAdmin && !info.is_active) {
@@ -163,5 +163,5 @@
                 </tr>
             `;
         }
-	});
+    });
 </script>

@@ -1,0 +1,42 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block content %}
+    <main>
+        <div class="container mt-5">
+            <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Действие</th>
+                    <th scope="col">Кем</th>
+                    <th scope="col">Описание</th>
+                    <th scope="col">Время</th>
+                    <th scope="col">Статус</th>
+                </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                {% for log in logs %}
+                    <tr {% if log.next_values %}style="cursor: pointer;"
+                        onclick="getLog('{% url 'log' log.id %}')"{% endif %}
+                        class="{% if log.status == 'error' or log.status == 'error_logging' %} table-danger {% else %} table-success {% endif %}">
+                        <td>{{ log.slug }}</td>
+                        <td>{{ log.by_user }}</td>
+                        <td>{{ log.text|safe }}</td>
+                        <td>{{ log.created_at }}</td>
+                        <td>{{ log.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function getLog(url) {
+            window.location.href = url;
+        }
+    </script>
+{% endblock %}

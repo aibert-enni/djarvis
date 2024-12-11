@@ -2,7 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
+from django.utils.timezone import now
 
 from ipphone_app.models.record import Record
 
@@ -14,7 +14,7 @@ class Token(models.Model):
     token = models.UUIDField(default=uuid.uuid4)
     record = models.OneToOneField(Record, on_delete=models.CASCADE)
     attempt_numbers = models.IntegerField(default=0)
-    expire_time = models.DateTimeField(default=timezone.now())
+    expire_time = models.DateTimeField(default=now)
 
     # permissions for record update
     phone = models.BooleanField(default=False)

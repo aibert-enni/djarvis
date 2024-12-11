@@ -24,30 +24,37 @@
                             <strong></strong>
                         </button>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            <strong>
-                                Отправить
-                                формы для корректировки данных
-                            </strong>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <button type="submit" onclick="sendForms()" class="dropdown-item">
-                                    Показать ссылки формы
-                                </button>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <button type="submit" onclick="sendForms(true)" class="dropdown-item">
-                                    Отправить ссылки по почте
-                                </button>
-                            </li>
-                        </ul>
-                    </li>
+                    {% url 'home' as home %}
+                    {% if request.path == home %}
+                        <li class="nav-item dropdown">
+                            <div id="send-form-spinner" class="spinner-border visually-hidden text-light" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <a id="send-form-dropdown" class="nav-link text-white dropdown-toggle" href="#"
+                               role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <strong>
+                                    Отправить
+                                    формы для корректировки данных
+                                </strong>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <button type="submit" onclick="sendForms()" class="dropdown-item">
+                                        Показать ссылки формы
+                                    </button>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <button type="submit" onclick="sendForms(true)" class="dropdown-item">
+                                        Отправить ссылки по почте
+                                    </button>
+                                </li>
+                            </ul>
+                        </li>
+                    {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">

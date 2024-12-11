@@ -30,7 +30,8 @@ class AddRecordForm(forms.ModelForm):
     )
     position_id = forms.IntegerField(
         required=False,  # Поле необязательно по модели
-        widget=forms.NumberInput(attrs={"placeholder": "Позиция", "class": "form-control"})
+        widget=forms.NumberInput(attrs={"placeholder": "Позиция", "class": "form-control"}),
+        label="Позиция сотрудника в департаменте (Для сортировки)"
     )
     room = forms.CharField(
         required=False,  # Сделаем необязательным, как указано в модели

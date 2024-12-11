@@ -31,20 +31,20 @@ class RecordUpdateFormView(FormView):
     template_name = "update_form/record_update_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        config = RecordFormConfiguration.objects.get(id=1)
+        config = RecordFormConfiguration.get_active_config()
         if not config.is_active:
-            return HttpResponseForbidden("Ссылка на данный момент не работает")
+            return HttpResponseForbidden("Ссылка на данный момент не работает, обратитесь в 516")
         token = kwargs.get("token")
         token = check_token(token)
         if not token:
             return HttpResponseForbidden(
-                "Срок действие либо количество попыток истек, попросите заново ссылку"
+                "Вы уже поменяли данные или данная ссылка устарела, обратитесь в 516"
             )
         token.attempt_numbers += 1
         token.save()
         if token.attempt_numbers > config.attempts_number:
             return HttpResponseForbidden(
-                "Срок действие либо количество попыток истек, попросите заново ссылку"
+                "Вы уже поменяли данные или данная ссылка устарела, обратитесь в 516"
             )
         self.object = token.record
         self.old_object = copy.deepcopy(self.object)
@@ -74,7 +74,6 @@ class RecordUpdateFormView(FormView):
     def form_valid(self, form):
         prev_record = self.old_object
         record = form.save()
-        print(prev_record, record)
         LogManager.make_log(
             slug="update",
             by_user_id=record.id,
@@ -99,7 +98,6 @@ class SendRecordsFormsView(View):
         records = json.loads(request.POST.get("records"))
         email = json.loads(request.POST.get("email"))
         cached_records = cache.get("form_records_request")
-
         if cached_records is None:
             cache.set(
                 "form_records_request",
@@ -109,9 +107,9 @@ class SendRecordsFormsView(View):
         elif cached_records["records"] == records:
             if not email or cached_records["email"] == True:
                 if email:
-                    messages.error(request, "Вы уже делали рассылку")
+                    message = "Вы уже делали рассылку"
                 else:
-                    messages.error(request, "Вы уже запрашивали ссылки")
+                    message = "Вы уже запрашивали ссылки"
                 form_records_links = cache.get("form_records_links")
                 return JsonResponse(
                     {
@@ -119,7 +117,8 @@ class SendRecordsFormsView(View):
                             self.template_name,
                             {"links": form_records_links},
                             request=request,
-                        )
+                        ),
+                        "message": message,
                     }
                 )
             elif email:
@@ -128,14 +127,19 @@ class SendRecordsFormsView(View):
                     {"records": records, "email": email},
                     timeout=900,
                 )
-
+        else:
+            cache.set(
+                "form_records_request",
+                {"records": records, "email": email},
+                timeout=900,
+            )
         records = Record.objects.all().filter(id__in=records).only("id", "full_name")
         if not records:
-            messages.error(request, "Нету сотрудников для создания ссылок")
+            message = "Нету сотрудников для создания ссылок"
             return redirect("home")
 
         links = []
-        config = RecordFormConfiguration.objects.only("expire_time_duration").get(id=1)
+        config = RecordFormConfiguration.get_active_config()
 
         for record in records:
             token = Token.objects.filter(record=record).first()
@@ -194,16 +198,17 @@ class SendRecordsFormsView(View):
 
         if links:
             if email:
-                messages.success(request, "Рассылка сделана")
+                message = "Рассылка сделана"
             else:
-                messages.success(request, "Ссылки для формы созданы")
+                message = "Ссылки для формы созданы"
             return JsonResponse(
                 {
                     "form_html": render_to_string(
                         self.template_name,
                         {"links": links},
                         request=request,
-                    )
+                    ),
+                    "message": message,
                 }
             )
         else:
@@ -215,6 +220,9 @@ class RecordFormConfigurationView(UpdateView):
     model = RecordFormConfiguration
     form_class = RecordFormConfigurationForm
     template_name = "update_form/record_form_configuration.html"
+
+    def get_object(self, queryset=None):
+        return RecordFormConfiguration.get_active_config()
 
     def form_valid(self, form):
         prev_config = self.get_object()

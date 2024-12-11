@@ -9,7 +9,7 @@ class AddDepartmentForm(forms.ModelForm):
     )
     position = forms.IntegerField(
         required=True,
-        widget=forms.NumberInput(attrs={"placeholder": "Позиция", "class": "form-control"}),
+        widget=forms.NumberInput(attrs={"placeholder": "Позиция департамента (Для сортировки)", "class": "form-control"}),
         label=""
     )
 

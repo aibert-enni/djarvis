@@ -84,18 +84,21 @@
                             <div class="mb-3">
                                 <label for="department-name" class="form-label">Название департамента</label>
                                 <input type="text" class="form-control" id="department-name" name="name">
-                                <label for="department-position" class="form-label">Позиция департамента</label>
-                                <input type="number" class="form-control" id="department-position" name="position">
+                                <label for="department-position" class="form-label">Позиция департамента (Для
+                                    сортировки)</label>
+                                <input type="number" class="form-control" id="department-position" name="position"
+                                       required>
                             </div>
                             <input type="hidden" id="department-id" name="department_id">
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <br>
+                        <button type="button" class="btn btn-danger" onclick="deleteDepartment()">Удалить департамент
+                        </button>
                         <button type="button" class="btn btn-primary" onclick="submitEditDepartmentForm()">Сохранить
                             изменения
                         </button>
-                        <button type="button" class="btn btn-danger" onclick="deleteDepartment()">Удалить</button>
                     </div>
                 </div>
             </div>
@@ -180,7 +183,7 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header justify-content-between align-items-center">
                         <h5 class="modal-title" id="linksRecordModalLabel">Ссылки:</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -266,16 +269,16 @@
 
             filteredEmployers.forEach(employer => {
                 const departmentName = employer.department__name;
-        
+
                 if (departmentName != null && !departmentsMap[departmentName]) {
                     departmentsMap[departmentName] = [];
                 }
                 if (!employer.is_active) {
-                    departmentsMap[null].push(employer);    
+                    departmentsMap[null].push(employer);
                 } else {
                     departmentsMap[departmentName].push(employer);
                 }
-                
+
             });
             console.log(filteredEmployers, departmentsMap);
 
@@ -368,6 +371,10 @@
             const departmentId = document.getElementById('department-id').value;
             const departmentName = document.getElementById('department-name').value;
             const departmentPosition = document.getElementById('department-position').value;
+
+            if (!departmentPosition) {
+                return
+            }
 
             // Отправляем AJAX запрос для обновления департамента
             $.ajax({
@@ -484,10 +491,19 @@
                             email: email,
                             csrfmiddlewaretoken: '{{ csrf_token }}'
                         },
+                        beforeSend: function (){
+                            $('#send-form-dropdown').toggleClass("visually-hidden")
+                            $('#send-form-spinner').toggleClass("visually-hidden")
+                        },
                         success: function (response) {
+                            showTopAlert(response.message)
                             $('#modal-links-content').html(response.form_html);
                             $('#linksModal').modal('show');
                             console.log(response);
+                        },
+                        complete: function () {
+                            $('#send-form-spinner').toggleClass("visually-hidden")
+                            $('#send-form-dropdown').toggleClass("visually-hidden")
                         }
                     });
                 }
@@ -608,6 +624,18 @@
                     }
                 });
             }
+        }
+
+        function showTopAlert(message) {
+            const alert = document.getElementById('topAlert');
+            alert.textContent = message;
+            alert.classList.remove('d-none', 'fade');
+            alert.classList.add('show');
+            setTimeout(() => {
+                alert.classList.add('fade');
+                alert.classList.remove('show');
+                setTimeout(() => alert.classList.add('d-none'), 150); // Remove it after fade-out
+            }, 3000); // Show alert for 3 seconds
         }
 
     </script>

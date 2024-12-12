@@ -482,6 +482,10 @@
 
             function sendForms(email = false) {
                 const records = getCheckedRecords();
+                if (records.length <= 0) {
+                    showTopAlert("Вы не выбрали сотрудников для создания ссылок");
+                    return;
+                }
                 if (records.length > 0) {
                     $.ajax({
                         type: "POST",

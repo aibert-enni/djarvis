@@ -47,10 +47,11 @@ class RecordUpdateFormView(FormView):
                 "Вы уже поменяли данные или данная ссылка устарела, обратитесь в 516"
             )
         self.object = token.record
-        self.old_object = copy.deepcopy(self.object)
+        self.old_object = copy.deepcopy(self.object) # to save previous data of record in logs
         self.token = token
         return super().dispatch(request, *args, **kwargs)
 
+    # init form
     def get_form(self, form_class=None):
         form = self.form_class(
             self.request.POST or None, self.request.FILES or None, instance=self.object
@@ -95,9 +96,9 @@ class SendRecordsFormsView(View):
 
     @transaction.atomic
     def post(self, request):
-        records = json.loads(request.POST.get("records"))
-        email = json.loads(request.POST.get("email"))
-        cached_records = cache.get("form_records_request")
+        records = json.loads(request.POST.get("records")) # records ids that need links
+        email = json.loads(request.POST.get("email")) # flag to send links by email or not
+        cached_records = cache.get("form_records_request") # state of request to check if records ids the same and to limit email mailing
         if cached_records is None:
             cache.set(
                 "form_records_request",
@@ -136,7 +137,12 @@ class SendRecordsFormsView(View):
         records = Record.objects.all().filter(id__in=records).only("id", "full_name")
         if not records:
             message = "Нету сотрудников для создания ссылок"
-            return redirect("home")
+            return JsonResponse(
+                {
+                    "form_html": "",
+                    "message": message,
+                }
+            )
 
         links = []
         config = RecordFormConfiguration.get_active_config()
@@ -212,8 +218,13 @@ class SendRecordsFormsView(View):
                 }
             )
         else:
-            messages.error(request, "Ссылки для формы не созданы")
-            return redirect("home")
+            message = "Ссылки для формы не созданы"
+            return JsonResponse(
+                {
+                    "form_html": "",
+                    "message": message,
+                }
+            )
 
 
 class RecordFormConfigurationView(UpdateView):

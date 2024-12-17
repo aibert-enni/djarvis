@@ -1,6 +1,6 @@
 import copy
 import uuid
-from datetime import timedelta
+from django.utils import timezone
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -102,11 +102,13 @@ class SendRecordsFormsView(View):
         if email and cached_records is None:
             cache.set(
                 "form_records_request",
-                {email: True, "expire_time": timedelta(seconds=900)},
+                {email: True, "expire_time": timezone.now() + timezone.timedelta(seconds=900)},
                 timeout=900,
             )
         elif email and cached_records is not None:
-            message = f"Отправить рассылку сможете после {timezone.now() - cached_records['expire_time']}"
+            total_seconds = (cached_records["expire_time"] - timezone.now()).total_seconds()
+            total_seconds = int(total_seconds)
+            message = f"Отправить рассылку сможете после {total_seconds // 60} минут и {total_seconds % 60} секунд"
             return JsonResponse(
                 {
                     "form_html": "",
@@ -146,7 +148,7 @@ class SendRecordsFormsView(View):
             elif not token.is_valid():
                 token.token = uuid.uuid4()
                 token.attempt_numbers = 0
-                token.expire_time = timezone.now() + timedelta(
+                token.expire_time = timezone.now() + timezone.timedelta(
                     days=config.expire_time_duration
                 )
 
@@ -173,7 +175,7 @@ class SendRecordsFormsView(View):
                         fail_silently=False,
                         recipient_list=[record.email],
                     )
-            links.append({"full_name": record.full_name, "link": link, "is_email_sended": token.is_email_sended, "expire_time": str(token.expire_time)})
+            links.append({"full_name": record.full_name, "link": link, "is_email_sended": token.is_email_sended, "expire_time": str(token.expire_time.strftime("%Y-%m-%d %H:%M:%S"))})
             token.save()
 
         if email:

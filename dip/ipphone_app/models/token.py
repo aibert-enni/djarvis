@@ -36,6 +36,6 @@ class Token(models.Model):
         self.attempt_numbers -= 1
 
     def is_valid(self):
-        if self.attempt_numbers > 0 or self.expire_time > now():
+        if self.attempt_numbers > 0 and self.expire_time > now():
             return True
         return False

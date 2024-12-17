@@ -40,9 +40,9 @@ class RecordUpdateFormView(FormView):
             return HttpResponseForbidden(
                 "Вы уже поменяли данные или данная ссылка устарела, обратитесь в 516"
             )
-        token.attempt_numbers += 1
+        token.attempt_decrement()
         token.save()
-        if token.attempt_numbers > config.attempts_number:
+        if not token.is_valid():
             return HttpResponseForbidden(
                 "Вы уже поменяли данные или данная ссылка устарела, обратитесь в 516"
             )
@@ -99,41 +99,22 @@ class SendRecordsFormsView(View):
         records = json.loads(request.POST.get("records")) # records ids that need links
         email = json.loads(request.POST.get("email")) # flag to send links by email or not
         cached_records = cache.get("form_records_request") # state of request to check if records ids the same and to limit email mailing
-        if cached_records is None:
+        if email and cached_records is None:
             cache.set(
                 "form_records_request",
-                {"records": records, "email": email},
+                {email: True, "expire_time": timedelta(seconds=900)},
                 timeout=900,
             )
-        elif cached_records["records"] == records:
-            if not email or cached_records["email"] == True:
-                if email:
-                    message = "Вы уже делали рассылку"
-                else:
-                    message = "Вы уже запрашивали ссылки"
-                form_records_links = cache.get("form_records_links")
-                return JsonResponse(
-                    {
-                        "form_html": render_to_string(
-                            self.template_name,
-                            {"links": form_records_links},
-                            request=request,
-                        ),
-                        "message": message,
-                    }
-                )
-            elif email:
-                cache.set(
-                    "form_records_request",
-                    {"records": records, "email": email},
-                    timeout=900,
-                )
-        else:
-            cache.set(
-                "form_records_request",
-                {"records": records, "email": email},
-                timeout=900,
+        elif email and cached_records is not None:
+            message = f"Отправить рассылку сможете после {timezone.now() - cached_records['expire_time']}"
+            return JsonResponse(
+                {
+                    "form_html": "",
+                    "message": message,
+                }
             )
+
+
         records = Record.objects.all().filter(id__in=records).only("id", "full_name")
         if not records:
             message = "Нету сотрудников для создания ссылок"
@@ -160,22 +141,23 @@ class SendRecordsFormsView(View):
                     position=config.position,
                     department=config.department,
                     room=config.room,
+                    attempt_numbers=config.attempts_number,
                 )
-            else:
+            elif not token.is_valid():
                 token.token = uuid.uuid4()
+                token.attempt_numbers = 0
+                token.expire_time = timezone.now() + timedelta(
+                    days=config.expire_time_duration
+                )
 
-            token.attempt_numbers = 0
-            token.expire_time = timezone.now() + timedelta(
-                days=config.expire_time_duration
-            )
-            token.save()
+
 
             link = request.build_absolute_uri(
                 reverse("record_update_form", kwargs={"token": token})
             )
-            links.append({"full_name": record.full_name, "link": link})
 
-            if email and record.email:
+            if email and not token.is_email_sended:
+                token.is_email_sended = True
                 if settings.DEBUG:
                     print(record.email)
                 else:
@@ -191,15 +173,20 @@ class SendRecordsFormsView(View):
                         fail_silently=False,
                         recipient_list=[record.email],
                     )
+            links.append({"full_name": record.full_name, "link": link, "is_email_sended": token.is_email_sended, "expire_time": str(token.expire_time)})
+            token.save()
 
-        cache.set("form_records_links", links, timeout=900)
+        if email:
+            action = "Отправить рассылку"
+        else:
+            action = "Получить ссылки"
 
         LogManager.make_log(
             request=self.request,
             slug="action",
             by_user_id=self.request.user.id,
             next_values={"Ссылки": links},
-            action="Отправить рассылку",
+            action=action,
         )
 
         if links:

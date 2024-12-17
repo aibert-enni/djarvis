@@ -24,9 +24,18 @@ class Token(models.Model):
     room = models.BooleanField(default=False)
     email = models.BooleanField(default=False)
     image = models.BooleanField(default=False)
+    is_email_sended = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
 
     def __str__(self):
         return f"{self.token}"
+
+    def attempt_decrement(self):
+        self.attempt_numbers -= 1
+
+    def is_valid(self):
+        if self.attempt_numbers > 0 or self.expire_time > now():
+            return True
+        return False

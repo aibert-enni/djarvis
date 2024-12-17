@@ -6,7 +6,7 @@ from ipphone_app.models import Token
 def check_token(token):
     try:
         token = Token.objects.select_related('record').get(token=token)
-        if not token or token.expire_time < timezone.now():
+        if not token:
             return False
 
         return token

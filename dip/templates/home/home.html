@@ -443,6 +443,8 @@
         }
 
         {% if user.is_authenticated %}
+            let cached_records = [];
+            let cached_html;
             document.querySelectorAll('.record-checkbox').forEach((el) => {
                 el.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -482,10 +484,16 @@
 
             function sendForms(email = false) {
                 const records = getCheckedRecords();
-                if (records.length <= 0) {
+                 if (records.length <= 0) {
                     showTopAlert("Вы не выбрали сотрудников для создания ссылок");
                     return;
                 }
+                if (!email && records.every((value, index) => value === cached_records[index])) {
+                    $('#modal-links-content').html(cached_html.form_html);
+                    $('#linksModal').modal('show');
+                    return;
+                }
+                console.log(cached_records);
                 if (records.length > 0) {
                     $.ajax({
                         type: "POST",
@@ -495,14 +503,22 @@
                             email: email,
                             csrfmiddlewaretoken: '{{ csrf_token }}'
                         },
-                        beforeSend: function (){
+                        beforeSend: function () {
                             $('#send-form-dropdown').toggleClass("visually-hidden")
                             $('#send-form-spinner').toggleClass("visually-hidden")
                         },
                         success: function (response) {
                             showTopAlert(response.message)
-                            $('#modal-links-content').html(response.form_html);
-                            $('#linksModal').modal('show');
+                            if (response.form_html !== "") {
+                                $('#modal-links-content').html(response.form_html);
+                                $('#linksModal').modal('show');
+                            } else {
+                                $('#send-email-btn').prop('disabled', true);
+                            }
+                            if (!email) {
+                                cached_records = records;
+                                cached_html = response.form_html;
+                            }
                             console.log(response);
                         },
                         complete: function () {
@@ -630,15 +646,31 @@
             }
         }
 
+        let alertTimeout; // Keep track of the timeout
+
         function showTopAlert(message) {
             const alert = document.getElementById('topAlert');
-            alert.textContent = message;
-            alert.classList.remove('d-none', 'fade');
+
+            // Clear any existing timeout to prevent glitches
+            if (alertTimeout) {
+                clearTimeout(alertTimeout);
+                alertTimeout = null;
+            }
+
+            // Reset the alert state
+            alert.classList.remove('fade', 'd-none');
             alert.classList.add('show');
-            setTimeout(() => {
+
+            // Set the new message
+            alert.textContent = message;
+
+            // Set timeout to hide the alert
+            alertTimeout = setTimeout(() => {
                 alert.classList.add('fade');
                 alert.classList.remove('show');
-                setTimeout(() => alert.classList.add('d-none'), 150); // Remove it after fade-out
+
+                // Ensure `d-none` is added after the fade-out completes
+                setTimeout(() => alert.classList.add('d-none'), 150);
             }, 3000); // Show alert for 3 seconds
         }
 

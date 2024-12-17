@@ -30,7 +30,7 @@
 
 .photo-show:hover {
     border-radius: 0;
-    transform: scale(8);
+    transform: scale(5);
 }
 
 .top-alert {

@@ -30,7 +30,7 @@
     <script>
         let prev_values = {% if log.prev_values %} {{ log.prev_values|safe }} {% else %} null {% endif %}
         let next_values = {% if log.next_values %} {{ log.next_values|safe }} {% else %} null {% endif %}
-        console.log(prev_values, next_values['Ссылки'])
+        console.log(prev_values, next_values)
         function render() {
             if (prev_values || next_values) {
                 document.getElementsByTagName('main')[0].innerHTML += `

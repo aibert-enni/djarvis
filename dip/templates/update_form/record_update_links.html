@@ -1,6 +1,6 @@
 <textarea style="white-space: nowrap; height: 75vh;" class="form-control">
     {% for link in links %}
-    {{ link.full_name }}: {{ link.link }}
+    {{ link.full_name }}: {{ link.link }}, {% if link.is_email_sended %}На почту уже была отправлена, {% endif %}Срок действия: {{ link.expire_time }} 
     {% endfor %}
 </textarea>
 {#<ul class="list-group">#}

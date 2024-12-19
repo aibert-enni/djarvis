@@ -24,6 +24,6 @@ class RecordFormConfiguration(models.Model):
 
     @classmethod
     def get_active_config(cls):
-        obj = cls.objects.get_or_create(id=1, defaults={"name": "Default config"})
+        obj, created = cls.objects.get_or_create(id=1, defaults={"name": "Default config"})
         return obj
 

@@ -35,8 +35,13 @@
                 <div>
                     <div class="mb-3 d-flex justify-content-center align-items-center">
                         <div class="d-inline-flex parent justify-content-center align-content-center position-relative overflow-hidden rounded-circle">
-                            <img id="photo" class="object-fit-cover rounded-circle" width="300" height="300"
+                            <img id="photo"
+                                 class="object-fit-cover rounded-circle {% if form.email.errors %}is-invalid{% endif %}"
+                                 width="300" height="300"
                                  src="
+                                         
+                                         
+                                         
                                          
                                          {% if form.instance.image %}{{ form.instance.image.url }}{% else %}{% static 'images/Energo_logo-16.svg' %}{% endif %}"
                                  alt="profile photo">
@@ -50,9 +55,12 @@
                                     </svg>
                                     <span class="ms-2 fw-bold">Поменять фото</span>
                                 </label>
-                                <input hidden="hidden" type="file" onchange="changePhoto(this)" class="form-control"
+                                <input hidden="hidden" type="file" onchange="changePhoto(this)" class="form-control {% if form.image.errors %}is-invalid{% endif %}"
                                        name="image" id="image-id"
                                        value="{{ form.phone.value }}" accept="image/*" alt="">
+                                {% if form.image.errors %}
+                                    <div class="invalid-feedback">{{ form.image.errors }}</div>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -60,33 +68,53 @@
                 <div class="w-100">
                     <div class="form-floating mb-3">
                         <input {% if form.full_name.field.disabled %}disabled{% endif %} type="text"
-                               class="form-control" name="full_name" id="full_name-id"
+                               class="form-control {% if form.full_name.errors %}is-invalid{% endif %}" name="full_name"
+                               id="full_name-id"
                                placeholder="Иванов Иван Иванович" value="{{ form.full_name.value }}">
                         <label class="form-label" for="full_name-id">Ф.И.О.</label>
+                        {% if form.full_name.errors %}
+                            <div class="invalid-feedback">{{ form.full_name.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-floating mb-3">
-                        <input {% if form.position.field.disabled %}disabled{% endif %} type="text" class="form-control"
+                        <input {% if form.position.field.disabled %}disabled{% endif %} type="text"
+                               class="form-control {% if form.position.errors %}is-invalid{% endif %}"
                                name="position" id="position-id"
                                placeholder="Ректор" value="{{ form.position.value }}">
                         <label class="form-label" for="position-id">Должность</label>
+                        {% if form.position.errors %}
+                            <div class="invalid-feedback">{{ form.position.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-floating mb-3">
-                        <input {% if form.phone.field.disabled %}disabled{% endif %} type="tel" class="form-control"
+                        <input {% if form.phone.field.disabled %}disabled{% endif %} type="tel"
+                               class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
                                name="phone" id="phone-id" placeholder="1234"
                                value="{{ form.phone.value }}">
                         <label class="form-label" for="phone-id">Внутренний номер</label>
+                        {% if form.phone.errors %}
+                            <div class="invalid-feedback">{{ form.phone.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-floating mb-3">
-                        <input {% if form.room.field.disabled %}disabled{% endif %} type="tel" class="form-control"
+                        <input {% if form.room.field.disabled %}disabled{% endif %} type="tel"
+                               class="form-control {% if form.room.errors %}is-invalid{% endif %}"
                                name="room" id="room-id" placeholder="1234"
                                value="{{ form.room.value }}">
                         <label class="form-label" for="room-id">Кабинет</label>
+                        {% if form.room.errors %}
+                            <div class="invalid-feedback">{{ form.room.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-floating mb-3">
-                        <input {% if form.email.field.disabled %}disabled{% endif %} type="email" class="form-control"
+                        <input {% if form.email.field.disabled %}disabled{% endif %} type="email"
+                               class="form-control {% if form.email.errors %}is-invalid{% endif %}"
                                name="email" id="email-id"
                                placeholder="Иванов Иван Иванович" value="{{ form.email.value }}">
                         <label class="form-label" for="email-id">Почта</label>
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">{{ form.email.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-floating mb-3">
                         <select {% if form.department.field.disabled %}disabled{% endif %} class="form-select"

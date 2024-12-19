@@ -84,11 +84,6 @@ class RecordUpdateFormView(FormView):
         messages.success(self.request, "Ваши данные были обновлены")
         return redirect("home")
 
-    def form_invalid(self, form):
-        for field, errors in form.errors.items():
-            print(f"Field: {field}, Errors: {errors}")
-        return redirect("home")
-
 
 class SendRecordsFormsView(View):
     template_name = "update_form/record_update_links.html"

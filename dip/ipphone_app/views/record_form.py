@@ -92,7 +92,7 @@ class SendRecordsFormsView(View):
     def post(self, request):
         records = json.loads(request.POST.get("records")) # records ids that need links
         email = json.loads(request.POST.get("email")) # flag to send links by email or not
-        cached_records = cache.get("form_records_request") # state of request to check if records ids the same and to limit email mailing
+        cached_records = cache.get("form_records_request") # state of request to check if records ids are the same and to limit email mailing
         if email and cached_records is None:
             cache.set(
                 "form_records_request",
@@ -145,6 +145,7 @@ class SendRecordsFormsView(View):
                 token.expire_time = timezone.now() + timezone.timedelta(
                     days=config.expire_time_duration
                 )
+                token.is_email_sended = False
 
 
 
@@ -239,4 +240,4 @@ class RecordFormConfigurationView(UpdateView):
             action="Настроить рассылку",
             model="RecordFormConfiguration",
         )
-        return redirect(self.request.META.get("HTTP_REFERER"))
+        return redirect(self.request.path)

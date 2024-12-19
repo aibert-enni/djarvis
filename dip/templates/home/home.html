@@ -488,7 +488,7 @@
                     showTopAlert("Вы не выбрали сотрудников для создания ссылок");
                     return;
                 }
-                if (!email && records.every((value, index) => value === cached_records[index])) {
+                if (!email && cached_html && records.every((value, index) => value === cached_records[index])) {
                     $('#modal-links-content').html(cached_html.form_html);
                     $('#linksModal').modal('show');
                     return;

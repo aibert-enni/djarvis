@@ -90,6 +90,15 @@ class SendRecordsFormsView(View):
 
     @transaction.atomic
     def post(self, request):
+        config = RecordFormConfiguration.objects.get(pk=1)
+        if not config.is_active:
+            message = "Формы отключены, надо включить в настройках рассылки что бы они работали"
+            return JsonResponse(
+                {
+                    "form_html": "",
+                    "message": message,
+                }
+            )
         records = json.loads(request.POST.get("records")) # records ids that need links
         email = json.loads(request.POST.get("email")) # flag to send links by email or not
         cached_records = cache.get("form_records_request") # state of request to check if records ids are the same and to limit email mailing
@@ -127,7 +136,6 @@ class SendRecordsFormsView(View):
         for record in records:
             token = Token.objects.filter(record=record).first()
             if not token:
-                config = RecordFormConfiguration.objects.get(pk=1)
                 token = Token(
                     record=record,
                     phone=config.phone,

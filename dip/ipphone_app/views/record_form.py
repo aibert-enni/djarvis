@@ -1,6 +1,5 @@
 import copy
 import uuid
-from django.utils import timezone
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -147,7 +146,7 @@ class SendRecordsFormsView(View):
                 )
             elif not token.is_valid():
                 token.token = uuid.uuid4()
-                token.attempt_numbers = 0
+                token.attempt_numbers = config.attempts_number
                 token.expire_time = timezone.now() + timezone.timedelta(
                     days=config.expire_time_duration
                 )

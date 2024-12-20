@@ -11,17 +11,29 @@ class Record(models.Model):
         code='invalid_email'
     )
 
+    room_validator = RegexValidator(
+        regex=r'^[А-Я]-\d{3}$',
+        message='Номер кабинета должна быть в формате А-234',
+        code='invalid_room'
+    )
+
+    full_name_validator = RegexValidator(
+        regex=r'^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+(?: [А-ЯЁ][а-яё]+)?$',
+        message='ФИО должна начинаться с заглавной буквы и содержать только буквы',
+        code='invalid_full_name'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(
         default=True,
         verbose_name="Активен"
     )
-    phone = models.CharField(max_length=15, blank=True, null=True)
-    full_name = models.CharField(max_length=100)
+    phone = models.IntegerField(max_length=4, blank=True, null=True)
+    full_name = models.CharField(max_length=100, validators=[full_name_validator])
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     position = models.CharField(max_length=200, blank=True)
     position_id = models.IntegerField(default=1, blank=True, verbose_name="Позиция")
-    room = models.CharField(max_length=150, blank=True, null=True)
+    room = models.CharField(max_length=5, blank=True, null=True, validators=[room_validator])
     email = models.CharField(max_length=100, blank=True, null=True, validators=[email_validator])
     image = models.ImageField(upload_to="records/", blank=True, null=True)
 

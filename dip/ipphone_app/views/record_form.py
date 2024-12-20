@@ -76,7 +76,6 @@ class RecordUpdateFormView(FormView):
         record = form.save()
         LogManager.make_log(
             slug="update",
-            by_user_id=record.id,
             prev_values=prev_record,
             next_values=record,
             model="Record",
@@ -146,6 +145,9 @@ class SendRecordsFormsView(View):
                     department=config.department,
                     room=config.room,
                     attempt_numbers=config.attempts_number,
+                    expire_time=timezone.now() + timezone.timedelta(
+                        days=config.expire_time_duration
+                    )
                 )
             elif not token.is_valid():
                 token.token = uuid.uuid4()

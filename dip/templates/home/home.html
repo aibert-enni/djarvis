@@ -265,15 +265,18 @@
             tableBody.innerHTML = "";
 
             // Группировка сотрудников по департаментам
-            const departmentsMap = {null: []};
+            const departmentsMap = {}
 
             filteredEmployers.forEach(employer => {
                 const departmentName = employer.department__name;
 
-                if (departmentName != null && !departmentsMap[departmentName]) {
+                if (departmentName != null && !departmentsMap[departmentName] && employer.is_active) {
                     departmentsMap[departmentName] = [];
                 }
-                if (!employer.is_active) {
+                if (!employer.is_active || departmentName == null) {
+                    if(!(null in departmentsMap)) {
+                        departmentsMap[null] = []
+                    }
                     departmentsMap[null].push(employer);
                 } else {
                     departmentsMap[departmentName].push(employer);

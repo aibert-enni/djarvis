@@ -31,6 +31,7 @@ class HomeView(ListView):
             records.values(
                 "id",
                 "is_active",
+                "is_working",
                 "phone",
                 "image",
                 "full_name",

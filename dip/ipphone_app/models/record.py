@@ -24,10 +24,14 @@ class Record(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
     is_active = models.BooleanField(
         default=True,
         verbose_name="Активен"
     )
+
+    is_working = models.BooleanField(default=True, verbose_name="Статус занятости")
+
     phone = models.SmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(9999), MinValueValidator(0)])
     full_name = models.CharField(max_length=100, validators=[full_name_validator])
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)

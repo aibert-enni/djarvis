@@ -458,21 +458,13 @@
             function selectAllRecords(element) {
                 const recordsCheckboxes = document.querySelectorAll('input[type=checkbox]');
                 for (let i = 0; i < recordsCheckboxes.length; i++) {
-                    if (element.checked) {
-                        recordsCheckboxes[i].checked = true;
-                    } else {
-                        recordsCheckboxes[i].checked = false;
-                    }
+                    recordsCheckboxes[i].checked = !!element.checked;
                 }
             }
             function selectDepartment(event, department_name) {
                 const recordsCheckboxes = document.querySelectorAll(`[checkbox-department="${department_name}"]`);
                 for (let i = 0; i < recordsCheckboxes.length; i++) {
-                    if (event.checked) {
-                        recordsCheckboxes[i].checked = true;
-                    } else {
-                        recordsCheckboxes[i].checked = false;
-                    }
+                    recordsCheckboxes[i].checked = !!event.checked;
                 }
             }
 

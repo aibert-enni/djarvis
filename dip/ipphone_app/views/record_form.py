@@ -75,6 +75,7 @@ class RecordUpdateFormView(FormView):
         prev_record = self.old_object
         record = form.save()
         LogManager.make_log(
+            request=self.request,
             slug="update",
             prev_values=prev_record,
             next_values=record,

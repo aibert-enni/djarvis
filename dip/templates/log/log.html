@@ -4,22 +4,21 @@
     <main>
         <table class="table table-bordered table-hover">
             <thead>
-            <tr>
-                <th scope="col">Действие</th>
+            <tr class="table-secondary">
                 <th scope="col">Кем</th>
+                <th scope="col">Действие</th>
                 <th scope="col">Описание</th>
                 <th scope="col">Время</th>
                 <th scope="col">Статус</th>
             </tr>
             </thead>
             <tbody class="s">
-            <tr onclick="getLog('{% url 'log' log.id %}')"
-                class="{% if log.status == 'error' or log.status == 'error_logging' %} table-danger {% else %} table-success {% endif %}">
-                <td>{{ log.slug }}</td>
-                <td>{{ log.by_user }}</td>
-                <td>{{ log.text|safe }}</td>
-                <td>{{ log.created_at }}</td>
-                <td>{{ log.status }}</td>
+            <tr onclick="getLog('{% url 'log' log.id %}')">
+                <td class="fw-semibold">{{ log.by_user }}</td>
+                <td class="fw-semibold" id="action">{{ log.slug|upper }}</td>
+                <td class="fw-semibold">{{ log.text|safe }}</td>
+                <td class="fw-semibold">{{ log.created_at }}</td>
+                <td class="fw-semibold {% if log.status == 'error' or log.status == 'error_logging' %} text-danger {% else %} text-success {% endif %}">{{ log.status }}</td>
             </tr>
             </tbody>
         </table>
@@ -30,7 +29,30 @@
     <script>
         let prev_values = {% if log.prev_values %} {{ log.prev_values|safe }} {% else %} null {% endif %}
         let next_values = {% if log.next_values %} {{ log.next_values|safe }} {% else %} null {% endif %}
-        console.log(prev_values, next_values)
+
+        const action = document.getElementById('action');
+
+        switch (action.textContent.toLowerCase()) {
+                case 'create':
+                    action.classList.add('text-success');
+                    break;
+                case 'update':
+                    action.classList.add('text-primary');
+                    break;
+                case 'delete':
+                    action.classList.add('text-danger');
+                    break;
+                case 'login':
+                    action.classList.add('text-primary');
+                    break;
+                case 'action':
+                    action.style.color = '#6f42c1';
+                    break;
+                default:
+                    action.classList.add('text-danger');
+                    break;
+            }
+
         function render() {
             if (prev_values || next_values) {
                 document.getElementsByTagName('main')[0].innerHTML += `
@@ -90,7 +112,8 @@
                         </tbody>
                     </table>
                     </div>`;
-                    const next_fields = {% if log.slug in 'create update delete' %} next_values[0]['fields'] {% else %} next_values {% endif %}
+                    const next_fields = {% if log.slug in 'create update delete' %} next_values[0]['fields'] {% else %}
+                        next_values {% endif %}
                     const after = document.getElementById('after')
                     if (prev_fields) {
                         for (let field in next_fields) {

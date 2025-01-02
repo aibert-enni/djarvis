@@ -19,7 +19,6 @@
             <table class="table text-center table-striped table-hover table-custom">
                 <thead class="ipphone-head">
                 <tr>
-                    <th scope="col">Статус занятости</th>
                     <th scope="col">Внутренние номера</th>
                     <th scope="col">Фотография</th>
                     <th scope="col">Ф.И.О.</th>
@@ -204,7 +203,6 @@
             <table class="table text-center table-striped table-hover table-custom">
                 <thead class="ipphone-head">
                 <tr>
-                    <th scope="col">Статус занятости</th>
                     <th scope="col">Внутренние номера</th>
                     <th scope="col">Фотография</th>
                     <th scope="col">Ф.И.О.</th>
@@ -294,7 +292,7 @@
                     // Департамент без сотрудников вообще (только для админа)
                     const departmentRow =
                         `<tr class="default-department department-row">
-                        <td colspan="7" class="text-left department"><strong>Неактивные пользователи и пользователи без департамента</strong></td>
+                        <td colspan="6" class="text-left department"><strong>Неактивные пользователи и пользователи без департамента</strong></td>
                         {% if user.is_authenticated %}
                         <td colspan="1" class="department"><input onchange="selectDepartment(this,'not-active')" class="department-checkbox" type="checkbox"></td>
                         {% endif %}
@@ -306,10 +304,9 @@
                         if (!employer.department__name || employer.department__name.trim() === "" || !employer.is_active) {
                             const row =
                                 `<tr class="record" data-record="${employer.id}" onclick="openEditRecordModal('${employer.id}', '${employer.full_name}', '${employer.department__name}', '${employer.position}', '${employer.position_id}', '${employer.phone}', '${employer.email}', '${employer.room}')">
-                                <td class="fw-semibold text-${employer.is_working ? 'success' : 'danger'}">${employer.is_working ? 'Активный' : 'Неактивный'}</td>
                                 <td>${employer.phone}</td>
                                 <td><img class="photo ${employer.image ? "photo-show" : ""}" src="${employer.image ? "{% static 'images/avatar-green.svg' %}" : "{% static 'images/avatar-red.svg' %}"}" ${employer.image ? 'onmouseover="this.src=\'' + employer.image + '\'"' : ''} ${employer.image ? 'onmouseleave="this.src=\'' + "{% static 'images/avatar-green.png' %}" + '\'"' : ''} alt=""></td>
-                                <td>${employer.full_name}</td>
+                                <td class="text-${employer.is_working ? 'success' : 'danger'}">${employer.full_name}</td>
                                 <td>${employer.position}</td>
                                 <td>${employer.room}</td>
                                 <td>${employer.email}</td>
@@ -322,7 +319,7 @@
                 } else if (departmentName !== "null") {
                     const departmentRow =
                         `<tr class="department-row department">
-                        <td colspan="7" class="text-left department" onclick="openEditDepartmentModal('${department.id}', '${department.name}', '${department.position}')"><strong>${departmentName}</strong></td>
+                        <td colspan="6" class="text-left department" onclick="openEditDepartmentModal('${department.id}', '${department.name}', '${department.position}')"><strong>${departmentName}</strong></td>
                         {% if user.is_authenticated %}
                         <td colspan="1" class="department"><input onchange="selectDepartment(this,'${department.name}')" class="department-checkbox" type="checkbox"></td>
                         {% endif %}
@@ -333,10 +330,9 @@
                         if (employer.is_active) {
                             const row =
                                 `<tr class="record" data-record="${employer.id}" data-department="${employer.department__name}" onclick="openEditRecordModal('${employer.id}', '${employer.full_name}', '${employer.position}', '${employer.position_id}', '${employer.phone}', '${employer.email}', '${employer.room}')">
-                                <td class="text-${employer.is_working ? 'success' : 'danger'}">${employer.is_working ? 'Активный' : 'Неактивный'}</td>
                                 <td>${employer.phone}</td>
                                 <td><img class="photo ${employer.image ? "photo-show" : ""}" src="${employer.image ? "{% static 'images/avatar-green.svg' %}" : "{% static 'images/avatar-red.svg' %}"}" ${employer.image ? 'onmouseover="this.src=\'' + employer.image + '\'"' : ''} ${employer.image ? 'onmouseleave="this.src=\'' + "{% static 'images/avatar-green.png' %}" + '\'"' : ''} alt=""></td>
-                                <td>${employer.full_name}</td>
+                                <td class="text-${employer.is_working ? 'success' : 'danger'}">${employer.full_name}</td>
                                 <td>${employer.position}</td>
                                 <td>${employer.room}</td>
                                 <td>${employer.email}</td>

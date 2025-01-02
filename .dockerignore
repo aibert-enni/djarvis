@@ -1,0 +1,32 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore IDE and editor settings
+.idea/
+.vscode/
+*.swp
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore build and static files
+/static/
+*.log
+*.sqlite3
+*.db
+
+# Ignore Docker-specific files
+Dockerfile
+docker-compose.yml
+
+# Ignore django media folder
+/media/
+*/media/

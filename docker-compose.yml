@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    container_name: db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - ./dip/.env
+  dip:
+    build:
+      context: /dip/
+      dockerfile: ./Dockerfile
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      - db
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "80:80"
+    depends_on:
+      - dip
+
+volumes:
+  pgdata:
+  static_volume:
+  media_volume:

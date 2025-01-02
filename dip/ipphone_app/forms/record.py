@@ -91,4 +91,4 @@ class UpdateRecordForm(forms.ModelForm):
 
     class Meta:
         model = Record
-        exclude = ('created_at', 'position_id', 'position', 'is_active')
+        exclude = ('created_at', 'position_id', 'position', 'is_active', 'is_working')

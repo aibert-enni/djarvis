@@ -89,7 +89,7 @@ class SendRecordsFormsView(View):
 
     @transaction.atomic
     def post(self, request):
-        config = RecordFormConfiguration.objects.get(pk=1)
+        config = RecordFormConfiguration.get_active_config()
         if not config.is_active:
             message = "Формы отключены, надо включить в настройках рассылки что бы они работали"
             return JsonResponse(

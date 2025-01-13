@@ -251,20 +251,47 @@
         const tableBody = document.getElementById('table-body');
         const isAdminInput = document.getElementById('is-admin');
         const isAdmin = isAdminInput ? isAdminInput.value === 'true' : false;
-
+        
+        let prevSearchValue = null;
+        let prevFilteredEmployers = [];
 
         function filterData() {
             const searchValue = searchInput.value.toLowerCase();
+            console.log(employersData)
+            console.log(prevSearchValue)
+            console.log(prevFilteredEmployers)
+        
+            let filteredEmployers;
+        
+            if(searchValue.startsWith(prevSearchValue) && prevFilteredEmployers.length > 0) {
+                console.log('С кэша')
+                filteredEmployers = prevFilteredEmployers.filter(employer =>
+                employer.full_name.toLowerCase().includes(searchValue) ||
+                (employer.department__name ?? "").toLowerCase().includes(searchValue) ||
+                employer.phone.toString().includes(searchValue) ||
+                employer.email.toLowerCase().includes(searchValue) ||
+                employer.position.toLowerCase().includes(searchValue) ||
+                employer.room.toLowerCase().includes(searchValue));
+            } else {
+                console.log('С не кэша')
+                filteredEmployers = employersData.filter(employer =>
+                employer.full_name.toLowerCase().includes(searchValue) ||
+                (employer.department__name ?? "").toLowerCase().includes(searchValue) ||
+                employer.phone.toString().includes(searchValue) ||
+                employer.email.toLowerCase().includes(searchValue) ||
+                employer.position.toLowerCase().includes(searchValue) ||
+                employer.room.toLowerCase().includes(searchValue));
+            }
+            
+            prevSearchValue = searchValue;
+            prevFilteredEmployers = filteredEmployers;
 
             // Фильтрация данных по всем полям
-            const filteredEmployers = employersData.filter(employer => {
-                return Object.values(employer).some(value =>
-                    String(value).toLowerCase().includes(searchValue)
-                );
-            });
+            
 
             // Очистка таблицы
             tableBody.innerHTML = "";
+            let html = "";
 
             // Группировка сотрудников по департаментам
             const departmentsMap = {}
@@ -276,7 +303,7 @@
                     departmentsMap[departmentName] = [];
                 }
                 if (!employer.is_active || departmentName == null) {
-                    if(!(null in departmentsMap)) {
+                    if (!(null in departmentsMap)) {
                         departmentsMap[null] = []
                     }
                     departmentsMap[null].push(employer);
@@ -299,14 +326,14 @@
                         <td colspan="1" class="department"><input onchange="selectDepartment(this,'not-active')" class="department-checkbox" type="checkbox"></td>
                         {% endif %}
                     </tr>`;
-                    tableBody.innerHTML += departmentRow;
+                    html += departmentRow;
 
                     filteredEmployers.forEach(employer => {
                         // Проверка на сотрудников без департамента или неактивных сотрудников
                         if (!employer.department__name || employer.department__name.trim() === "" || !employer.is_active) {
                             const row =
                                 `<tr class="record" data-record="${employer.id}" onclick="openEditRecordModal('${employer.id}', '${employer.full_name}', '${employer.department__name}', '${employer.position}', '${employer.position_id}', '${employer.phone}', '${employer.email}', '${employer.room}')">
-                                <td class="fw-semibold text-${employer.is_working ? 'success' : 'danger'}">${employer.is_working ? 'Активный' : 'Неактивный'}</td>
+                                <td class="fw-semibold text-${employer.is_working ? 'success' : 'danger'}">${employer.is_working ? 'Работает' : 'Не работает'}</td>
                                 <td>${employer.phone}</td>
                                 <td><img class="photo ${employer.image ? "photo-show" : ""}" src="${employer.image ? "{% static 'images/avatar-green.svg' %}" : "{% static 'images/avatar-red.svg' %}"}" ${employer.image ? 'onmouseover="this.src=\'' + employer.image + '\'"' : ''} ${employer.image ? 'onmouseleave="this.src=\'' + "{% static 'images/avatar-green.png' %}" + '\'"' : ''} alt=""></td>
                                 <td>${employer.full_name}</td>
@@ -316,7 +343,7 @@
                                 <td><input checkbox-department="not-active" class="record-checkbox" type="checkbox"></td>
                             </tr>
                             `;
-                            tableBody.innerHTML += row;
+                            html += row;
                         }
                     });
                 } else if (departmentName !== "null") {
@@ -327,13 +354,13 @@
                         <td colspan="1" class="department"><input onchange="selectDepartment(this,'${department.name}')" class="department-checkbox" type="checkbox"></td>
                         {% endif %}
                     </tr>`;
-                    tableBody.innerHTML += departmentRow;
+                    html += departmentRow;
 
                     departmentsMap[departmentName].forEach(employer => {
                         if (employer.is_active) {
                             const row =
                                 `<tr class="record" data-record="${employer.id}" data-department="${employer.department__name}" onclick="openEditRecordModal('${employer.id}', '${employer.full_name}', '${employer.position}', '${employer.position_id}', '${employer.phone}', '${employer.email}', '${employer.room}')">
-                                <td class="text-${employer.is_working ? 'success' : 'danger'}">${employer.is_working ? 'Активный' : 'Неактивный'}</td>
+                                <td class="text-${employer.is_working ? 'success' : 'danger'}">${employer.is_working ? 'Работает' : 'Не рабоает'}</td>
                                 <td>${employer.phone}</td>
                                 <td><img class="photo ${employer.image ? "photo-show" : ""}" src="${employer.image ? "{% static 'images/avatar-green.svg' %}" : "{% static 'images/avatar-red.svg' %}"}" ${employer.image ? 'onmouseover="this.src=\'' + employer.image + '\'"' : ''} ${employer.image ? 'onmouseleave="this.src=\'' + "{% static 'images/avatar-green.png' %}" + '\'"' : ''} alt=""></td>
                                 <td>${employer.full_name}</td>
@@ -344,7 +371,7 @@
                                 <td><input checkbox-department="${employer.department__name}" class="record-checkbox" type="checkbox"></td>
                                 {% endif %}
                             </tr>`;
-                            tableBody.innerHTML += row;
+                            html += row;
                         }
                     });
                 }
@@ -354,13 +381,24 @@
             if (filteredEmployers.length === 0) {
                 tableBody.innerHTML =
                     `<tr>
-                    <td colspan="7">По запросу ничего не найдено...</td>
+                    <td colspan="{% if user.is_authenticated %}8{% else %}7{% endif %}">По запросу ничего не найдено...</td>
                 </tr>`;
+            } else {
+                tableBody.innerHTML = html
             }
         }
+        
+        // delay на считывание данных с поля поиска
+        function debounce(func, delay) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
 
-        // Установка слушателя на поле поиска
-        searchInput.addEventListener('keyup', filterData);
+        const debouncedFilterData = debounce(filterData, 300);
+        searchInput.addEventListener('input', debouncedFilterData);
 
         // Выполнение фильтрации сразу при загрузке страницы
         filterData();
@@ -481,7 +519,7 @@
 
             function sendForms(email = false) {
                 const records = getCheckedRecords();
-                 if (records.length <= 0) {
+                if (records.length <= 0) {
                     showTopAlert("Вы не выбрали сотрудников для создания ссылок");
                     return;
                 }

@@ -268,7 +268,7 @@
                 filteredEmployers = prevFilteredEmployers.filter(employer =>
                 employer.full_name.toLowerCase().includes(searchValue) ||
                 (employer.department__name ?? "").toLowerCase().includes(searchValue) ||
-                employer.phone.toString().includes(searchValue) ||
+                (employer.phone ?? "").toString().includes(searchValue) ||
                 employer.email.toLowerCase().includes(searchValue) ||
                 employer.position.toLowerCase().includes(searchValue) ||
                 employer.room.toLowerCase().includes(searchValue));
@@ -277,7 +277,7 @@
                 filteredEmployers = employersData.filter(employer =>
                 employer.full_name.toLowerCase().includes(searchValue) ||
                 (employer.department__name ?? "").toLowerCase().includes(searchValue) ||
-                employer.phone.toString().includes(searchValue) ||
+                (employer.phone ?? "").toString().includes(searchValue) ||
                 employer.email.toLowerCase().includes(searchValue) ||
                 employer.position.toLowerCase().includes(searchValue) ||
                 employer.room.toLowerCase().includes(searchValue));
@@ -389,7 +389,7 @@
         }
         
         // delay на считывание данных с поля поиска
-        function debounce(func, delay) {
+        {% comment %} function debounce(func, delay) {
             let timeout;
             return function (...args) {
                 clearTimeout(timeout);
@@ -397,8 +397,8 @@
             };
         }
 
-        const debouncedFilterData = debounce(filterData, 300);
-        searchInput.addEventListener('input', debouncedFilterData);
+        const debouncedFilterData = debounce(filterData, 300); {% endcomment %}
+        searchInput.addEventListener('input', filterData);
 
         // Выполнение фильтрации сразу при загрузке страницы
         filterData();

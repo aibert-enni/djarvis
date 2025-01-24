@@ -6,24 +6,24 @@
         <div class="container mt-5">
             <table class="table table-bordered table-hover">
                 <thead>
-                <tr>
-                    <th scope="col">Действие</th>
+                <tr class="table-secondary">
                     <th scope="col">Кем</th>
+                    <th scope="col">Действие</th>
                     <th scope="col">Описание</th>
                     <th scope="col">Время</th>
                     <th scope="col">Статус</th>
                 </tr>
                 </thead>
-                <tbody class="table-group-divider">
+                <tbody>
                 {% for log in logs %}
                     <tr {% if log.next_values %}style="cursor: pointer;"
                         onclick="getLog('{% url 'log' log.id %}')"{% endif %}
-                        class="{% if log.status == 'error' or log.status == 'error_logging' %} table-danger {% else %} table-success {% endif %}">
-                        <td>{{ log.slug }}</td>
-                        <td>{{ log.by_user }}</td>
-                        <td>{{ log.text|safe }}</td>
-                        <td>{{ log.created_at }}</td>
-                        <td>{{ log.status }}</td>
+                    >
+                        <td class="fw-semibold">{{ log.by_user }}</td>
+                        <td class="fw-semibold action">{{ log.slug|upper }}</td>
+                        <td class="fw-semibold">{{ log.text|safe }}</td>
+                        <td class="fw-semibold">{{ log.created_at }}</td>
+                        <td class="fw-semibold {% if log.status == 'error' or log.status == 'error_logging' %} text-danger {% else %} text-success {% endif %}">{{ log.status }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -35,6 +35,30 @@
 
 {% block scripts %}
     <script>
+        const actionElems = document.getElementsByClassName('action');
+        for (let action of actionElems) {
+            switch (action.textContent.toLowerCase()) {
+                case 'create':
+                    action.classList.add('text-success');
+                    break;
+                case 'update':
+                    action.classList.add('text-primary');
+                    break;
+                case 'delete':
+                    action.classList.add('text-danger');
+                    break;
+                case 'login':
+                    action.classList.add('text-primary');
+                    break;
+                case 'action':
+                    action.style.color = '#6f42c1';
+                    break;
+                default:
+                    action.classList.add('text-danger');
+                    break;
+            }
+        }
+
         function getLog(url) {
             window.location.href = url;
         }
